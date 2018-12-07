@@ -1,36 +1,37 @@
 <template>
   <div id="app">
 
-    <h1>Movie Words Emotion Over Time</h1>
-    <!-- <div v-for="movie in movies">
-      <h2>{{ movie.label }}</h2>
+    <h1 style="font-weight: bold;">Movie Words Emotion Over Time</h1>
 
-      <div style="height: 50px; border: 1px solid black; display: flex; flex-direction: row;">
+    <p>Each line has been rated independently by seven coders. Sentiment data is restricted to linguistic content only.</p>
+
+    <h2 :style="{color: getColor(movieLine.NumPositiveRatings)}">
+    {{ indexForMovie !== null ? movieTitleList[indexForMovie] : 'Select a movie'}}</h2>
+
+    <select v-model="indexForMovie">
+      <option disabled value="">Please select one</option>
+      <option
+      v-for="(title, index) in movieTitleList"
+       :value="index">{{ title }}</option>
+    </select>
+
+
+      <h2 :style="{color: getColor(movieLine.NumPositiveRatings)}">
+      {{ indexForMovie !== null ? (movieLine.MovieLine ? movieLine.MovieLine : 'Click on the bars! :)') : ''}}</h2>
+
+
+<transition-group name="fade" appear>
+<h2 v-if="indexForMovie !== null" key="sentHeader"  style="margin: 30px 0px -4px 0px">Is the line positive or negative?</h2>Greener means more votes for positive, redder more votes for negative.
+
+      <div
+      v-if="indexForMovie !== null"
+      key="sentHeader2"
+      style="margin-top: 10px; height: 50px; border: 1px solid black; display: flex; flex-direction: row;">
         <div
-        @click="() => {
-          movie.lineColor = getColor(movie.posRatings[index])
-          }"
-        v-for="(rating, index) in movie.posRatings"
+        @click="movieLine = line"
+        v-for="line in movieDataJson1"
         style="height: 50px;"
-        :style="{ width: (1/movie.posRatings.length)*100 + '%'}"
-        >
-          <div
-
-          style="height: 100%; width: 100%"
-          :style="{backgroundColor: getColor(movie.posRatings[index])}">
-          </div>
-        </div>
-      </div>
-      </div>
-
-      {{ movieDataJson1[0] }} -->
-      {{ movieLine }}
-      <div style="height: 50px; border: 1px solid black; display: flex; flex-direction: row;">
-        <div
-        @click="movieLine = line.MovieLine"
-        v-for="line in movieArray[indexForMovie]"
-        style="height: 50px;"
-        :style="{ width: (1/movieArray[indexForMovie].length)*100 + '%'}"
+        :style="{ width: (1/movieDataJson1.length)*100 + '%'}"
         >
           <div
 
@@ -39,93 +40,97 @@
           </div>
         </div>
       </div>
-
-      <div @click="indexForMovie++">
-        up
-      </div>
-      <div @click="indexForMovie--">
-        down
-      </div>
-
-      <!-- <div v-for="(movie, indexMovie) in movies">
-        <h2>{{ indexMovie + 1 }}: &nbsp;{{ movie.label }}</h2>
-        <h3 :style="{color: movie.lineColor}">{{ movie.clickedLine }}</h3>
-        <div style="height: 50px; border: 1px solid black; display: flex; flex-direction: row;">
+      <!-- <div style="background-color: maroon; margin: 27px 0px 0px 0px; height: 50px; display: flex; flex-direction: row;">
+        <div
+        @click="movieLine = line"
+        v-for="line in movieDataJson1"
+        style="height: 50px;"
+        :style="{ width: (1/movieDataJson1.length)*100 + '%'}"
+        >
           <div
-          @click="() => {
-            movie.clickedLine = line
-            movie.lineColor = getColor(movie.posRatings[index])
-            }"
-          v-for="(line, index) in movie.lines"
-          style="height: 50px;"
-          :style="{ width: (1/movie.lines.length)*100 + '%'}"
-          >
-            <div
 
-            style="height: 100%; width: 100%"
-            :style="{backgroundColor: getColor(movie.posRatings[index])}">
-            </div>
+          style="width: 100%; background-color: white;"
+          :style="{height: (line.NumPositiveRatings/7 * 100) + '%'}">
           </div>
         </div>
       </div> -->
+
+
+<!-- THOUGHT PROVOKING -->
+
+<h2
+  key="tpHeader"
+  v-if="indexForMovie !== null"
+  style="margin: 30px 0px -4px 0px">Is the line thought provoking?</h2>Taller black bars means more votes.
+
+      <div
+      key="tpHeader2"
+      v-if="indexForMovie !== null"
+      style="position: relative; vertical-align: bottom; background-color: black; margin: 0px 0px 0px 0px; height: 50px; display: flex; flex-direction: row;">
+        <div
+        @click="movieLine = line"
+        v-for="line in movieDataJson1"
+        style="height: 50px;"
+        :style="{ width: (1/movieDataJson1.length)*100 + '%'}"
+        >
+          <div
+
+          style="width: 100%; background-color: white;"
+          :style="{height: (Math.abs(line.ThoughtProvokingVoteCount/7 - 1) * 100) + '%'}">
+          </div>
+        </div>
+      </div>
+
+      <!-- INTENSITY -->
+
+      <h2 v-if="indexForMovie !== null" key="intenseHeader" style="margin: 30px 0px -4px 0px">Is the line intense?</h2>Taller red bars means more votes.
+
+            <div
+            key="intenseHeader2"
+            v-if="indexForMovie !== null"
+            style="position: relative; vertical-align: bottom; background-color: red; margin: 0px 0px 70px 0px; height: 50px; display: flex; flex-direction: row;">
+              <div
+              @click="movieLine = line"
+              v-for="line in movieDataJson1"
+              style="height: 50px;"
+              :style="{ width: (1/movieDataJson1.length)*100 + '%'}"
+              >
+                <div
+
+                style="width: 100%; background-color: white;"
+                :style="{height: (Math.abs(line.IntensityVoteCount/7 - 1) * 100) + '%'}">
+                </div>
+              </div>
+            </div>
+
+
+
+<h2
+v-if="indexForMovie !== null"
+key="linesHeader">Movie Lines Color Coded by Sentiment</h2>
+
+      <p
+      v-if="indexForMovie !== null"
+      key="lines"
+      :style="{color: getColor(movie.NumPositiveRatings)}"
+      v-for="movie in movieDataJson1">
+        {{ movie.MovieLine }}
+      </p>
+</transition-group>
   </div>
 </template>
 
 <script>
-import movieDataJson1 from './assets/1.json'
-import movieDataJson2 from './assets/2.json'
-import movieDataJson3 from './assets/3.json'
-import movieDataJson4 from './assets/4.json'
-import movieDataJson5 from './assets/5.json'
-import movieDataJson6 from './assets/6.json'
-import movieDataJson7 from './assets/7.json'
-import movieDataJson8 from './assets/8.json'
-import movieDataJson9 from './assets/9.json'
-import movieDataJson10 from './assets/10.json'
-import movieDataJson11 from './assets/11.json'
-import movieDataJson12 from './assets/12.json'
-import movieDataJson13 from './assets/13.json'
-import movieDataJson14 from './assets/14.json'
-import movieDataJson15 from './assets/15.json'
-import movieDataJson16 from './assets/16.json'
-import movieDataJson17 from './assets/17.json'
-import movieDataJson18 from './assets/18.json'
-import movieDataJson19 from './assets/19.json'
-import movieDataJson20 from './assets/20.json'
-import movieDataJson21 from './assets/21.json'
-import movieDataJson22 from './assets/22.json'
-import movieDataJson23 from './assets/23.json'
-import movieDataJson24 from './assets/24.json'
-import movieDataJson25 from './assets/25.json'
-import movieDataJson26 from './assets/26.json'
-import movieDataJson27 from './assets/27.json'
-import movieDataJson28 from './assets/28.json'
-import movieDataJson29 from './assets/29.json'
-import movieDataJson30 from './assets/30.json'
-import movieDataJson31 from './assets/31.json'
-import movieDataJson32 from './assets/32.json'
-import movieDataJson33 from './assets/33.json'
-import movieDataJson34 from './assets/34.json'
-import movieDataJson35 from './assets/35.json'
-import movieDataJson36 from './assets/36.json'
-import movieDataJson37 from './assets/37.json'
-import movieDataJson38 from './assets/38.json'
-import movieDataJson39 from './assets/39.json'
-import movieDataJson40 from './assets/40.json'
-import movieDataJson41 from './assets/41.json'
-import movieDataJson42 from './assets/42.json'
-import movieDataJson43 from './assets/43.json'
-import movieDataJson44 from './assets/44.json'
-import movieDataJson45 from './assets/45.json'
-import movieDataJson46 from './assets/46.json'
-import movieDataJson47 from './assets/47.json'
-import movieDataJson48 from './assets/48.json'
-import movieDataJson49 from './assets/49.json'
-import movieDataJson50 from './assets/50.json'
 export default {
   name: 'app',
   methods: {
+    getMovie (index) {
+      this.movieDataJson1 = require('./assets/' + index + '.json')
+    },
     getColor(number) {
+      if (number === 0) {
+        return '#dd3e54'
+      }
       if (number === 1) {
         return '#dd3e54'
       }
@@ -149,67 +154,35 @@ export default {
       }
     }
   },
+  watch: {
+    indexForMovie () {
+      this.getMovie (this.indexForMovie+1)
+    }
+  },
   data () {
     return {
       msg: 'Welcome to Your Vue.js App',
-      movieArray: [movieDataJson1,
-        movieDataJson2,
-        movieDataJson3,
-        movieDataJson4,
-        movieDataJson5,
-        movieDataJson6,
-        movieDataJson7,
-        movieDataJson8,
-        movieDataJson9,
-        movieDataJson10,
-        movieDataJson11,
-        movieDataJson12,
-        movieDataJson13,
-        movieDataJson14,
-        movieDataJson15,
-        movieDataJson16,
-        movieDataJson17,
-        movieDataJson18,
-        movieDataJson19,
-        movieDataJson20,
-        movieDataJson21,
-        movieDataJson22,
-        movieDataJson23,
-        movieDataJson24,
-        movieDataJson25,
-        movieDataJson26,
-        movieDataJson27,
-        movieDataJson28,
-        movieDataJson29,
-        movieDataJson30,
-        movieDataJson31,
-        movieDataJson32,
-        movieDataJson33,
-        movieDataJson34,
-        movieDataJson35,
-        movieDataJson36,
-        movieDataJson37,
-        movieDataJson38,
-        movieDataJson39,
-        movieDataJson40,
-        movieDataJson41,
-        movieDataJson42,
-        movieDataJson43,
-        movieDataJson44,
-        movieDataJson45,
-        movieDataJson46,
-        movieDataJson47,
-        movieDataJson48,
-        movieDataJson49,
-        movieDataJson50],
+      movieDataJson1: null,
       movieLine: 'Click the bar',
-      indexForMovie: 0
+      indexForMovie: null,
+      movieTitleList: [`Alice in Wonderland (2010)`, 	`Seven Samurai`, 	`Schindler's List`, 	`Harry Potter and the Order of the Phoenix`, 	`Harry Potter and the Half Blood Prince`, 	`Shrek 2`, 	`Pulp Fiction`, 	`Forrest Gump`, 	`Transformers 3 Dark of the Moon`, 	`The Good, the Bad, and the Ugly`, 	`Avatar`, 	`Silence of the Lambs`, 	`Se7en`, 	`The Lion King`, 	`Once Upon a Time in the West`, 	`The Matrix`, 	`The Dark Knight Rises (Batman)`, 	`City of God`, 	`The Godfather`, 	`Harry Potter and the Philosopher's Stone`, 	`Iron Man 3`, 	`Skyfall`, 	`Casablanca`, 	`Lord of the Rings: Return of the King`, 	`Shawshank Redemption`, 	`Goodfellas`, 	`The Godfather 2`, 	`Star Wars: A New Hope`, 	`Pirates Of The Caribbean: At World's End`, 	`Inception`, 	`The Usual Suspects`, 	`Indiana Jones: Raiders of the Lost Ark`, 	`The Avengers`, 	`Pirates of the Caribbean: Dead Man's Chest`, 	`Lord of the Rings: The Two Towers`, 	`Titanic`, 	`Fight Club`, 	`Finding Nemo`, 	`Harry Potter and the Deathly Hallows: Part 2`, 	`Star Wars: The Phantom Menace`, 	`Harry Potter and the Deathly Hallows: Part 1`, 	`Lord of the Rings: Fellowship of the Ring`, 	`Toy Story 3`, 	`The Dark Knight`, 	`One Flew Over the Cuckoo's Nest`, 	`The Hobbit, part 1`, 	`Star Wars: The Empire Strikes Back`, 	`Pirates of the Caribbean: On Stranger Tides`, 	`12 Angry Men`, 	`Jurassic Park`]
     }
   }
 }
 </script>
 
 <style>
+
+.fade-enter-active {
+  transition: opacity 1s
+}
+.fade-leave-active {
+  transition: opacity .05s
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+  opacity: 0
+}
+
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
